@@ -54,7 +54,96 @@ load("./dat/signalhsmm_poster.RData")
         \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
         \item c-region: a few polar, uncharged residues~\citep{jain_signal_1994}.
       \end{itemize}
+\end{frame}
 
+\begin{frame}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+1 & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}2 & G, P, S, T, Y \\ 
+  3 & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} 4 & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+freq_nondeg <- read.csv2("./dat/freq_nondeg.csv")[, -1]
+freq_deg <- read.csv2("./dat/freq_deg.csv")[, -1]
+
+do_pca <- function(x) 
+  x %>% 
+  select(-type, -taxon) %>% 
+  prcomp(center = TRUE, scale = TRUE) %>% 
+  getElement("x") %>% 
+  data.frame() %>% 
+  select(1, 2) %>% 
+  cbind(select(x, type, taxon), .) %>% 
+  mutate(type_nice = factor(type, labels = c("Mature peptide", "Signal peptide")),
+         taxon_nice = factor(taxon, labels = c("other", "Plasmodium"))) %>% 
+  mutate(both = paste0(type_nice, "\n(", taxon_nice, ")\n"))
+
+dat_deg <- do_pca(freq_deg) 
+dat_nondeg <- do_pca(freq_nondeg)
+
+# dat_deg <- read.table("PCAgr.txt", header = TRUE, sep = "\t")
+# dat_nondeg <- read.table("PCA.txt", header = TRUE, sep = "\t")
+# colnames(dat_deg) <- c("both", "PC1", "PC2")
+# colnames(dat_nondeg) <- c("both", "PC1", "PC2")
+
+plot_pca <- function(x)
+  ggplot(x, aes(x = PC1, y = PC2, fill = both)) + 
+  geom_density_2d(color = "black", contour = TRUE) +
+  #geom_point() +
+  stat_density2d(aes(fill=both,alpha=..level..), color = "black", contour = TRUE, geom="polygon") +
+  scale_linetype_discrete("") +
+  scale_fill_discrete("") +
+  scale_shape_discrete("") +
+  scale_color_discrete("") +
+  scale_x_continuous("Principal Component 1\n") +
+  scale_y_continuous("Principal Component 2") +
+  scale_alpha_continuous(range = c(0.25, 0.4)) +
+  guides(alpha = FALSE) +
+  my_theme
+
+p1 <- plot_pca(dat_nondeg) + ggtitle("Full alphabet") 
+p2 <- plot_pca(dat_deg) + ggtitle("Reduced alphabet") + guides(fill = FALSE)
+leg <- g_legend(p1)
+
+print(p1)
+@ 
+
+\end{frame}
+
+\begin{frame}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+print(p2)
+@ 
+\end{frame}
+
+
+
+\begin{frame}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+grid.arrange(p1 + guides(fill = FALSE), p2 + guides(fill = FALSE), 
+             leg, nrow = 3, heights = c(0.47, 0.47, 0.06))
+
+@ 
+
+
+\end{frame}
+
+
+\begin{frame}
+
+Countour plot of first two components in Pricincipal Compoment Analysis of amino acid frequency. The signal peptides from malaria and other taxons differ significantly when the full amino acid alphabet is employed. After the reduction of the alphabet, the signal peptides group together despite their origin.
 
 \end{frame}
 

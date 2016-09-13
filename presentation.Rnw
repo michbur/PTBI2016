@@ -1,0 +1,88 @@
+\documentclass{beamer}
+\usetheme{metropolis}
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx}
+\usepackage{epstopdf}
+\usepackage{colortbl, xcolor}
+
+
+\title{signalHsmm: prediction of malarial signal peptides}
+\date{}
+\author{Micha\l{} Burdukiewicz\inst{1}*, Piotr Sobczyk\inst{2}, Pawe\l{} B\l{}a\.{z}ej\inst{1}, Pawe\l{} Mackiewicz\inst{1}}
+\institute{\textsuperscript{1}University of Wroc\l{}aw, Department of Genomics, 
+
+\textsuperscript{2}Wroc\l{}aw University of Science and Technology, Faculty of Pure and Applied Mathematics,
+}
+
+\begin{document}
+  \maketitle
+  \section{Signal peptides}
+  
+\begin{frame}{}
+<<knitrIntro, echo = FALSE, message=FALSE,warning=FALSE>>=
+source("my_ggplot_theme.R")
+
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+library(dplyr)
+library(reshape2)
+library(xtable)
+library(biogram)
+
+load("./dat/signalhsmm_poster.RData")
+
+@
+
+\end{frame}
+
+  
+  \begin{frame}{}
+
+  \begin{figure}
+\includegraphics[width=0.9\textwidth]{static_figure/SP.png}
+\end{figure}
+      \begin{itemize}
+        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
+        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
+        \item c-region: a few polar, uncharged residues~\citep{jain_signal_1994}.
+      \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Acknowledgements and funding}
+
+This research was partially funded by the KNOW Consortium and National Science Center (2015/17/N/NZ2/01845).
+
+\small{
+\begin{itemize}
+\item Paweł Mackiewicz.
+\item \textbf{biogram} package (\url{https://cran.r-project.org/package=biogram}):
+\begin{itemize}
+\small
+\item Piotr Sobczyk,
+\item Chris Lauber.
+\end{itemize}
+\end{itemize}
+}
+
+\end{frame}
+
+
+
+\begin{frame}[allowframebreaks]
+        \frametitle{References}
+  \bibliographystyle{apalike}
+  \bibliography{signalhsmm_poster}
+\end{frame}
+
+
+\end{document}

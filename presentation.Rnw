@@ -39,42 +39,7 @@ library(biogram)
 
 load("./dat/signalhsmm_poster.RData")
 
-@
 
-\end{frame}
-
-  
-  \begin{frame}{}
-
-  \begin{figure}
-\includegraphics[width=0.9\textwidth]{static_figure/SP.png}
-\end{figure}
-      \begin{itemize}
-        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
-        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
-        \item c-region: a few polar, uncharged residues~\citep{jain_signal_1994}.
-      \end{itemize}
-\end{frame}
-
-\begin{frame}
-\begin{table}[ht]
-\centering
-\begin{tabular}{ll}
-  \toprule
-Group & Amino acids \\ 
-  \midrule
-1 & D, E, H, K, N, Q, R \\ 
-   \rowcolor[gray]{0.85}2 & G, P, S, T, Y \\ 
-  3 & F, I, L, M, V, W \\ 
-   \rowcolor[gray]{0.85} 4 & A, C \\ 
-   \bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
-
-
-\begin{frame}
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 freq_nondeg <- read.csv2("./dat/freq_nondeg.csv")[, -1]
 freq_deg <- read.csv2("./dat/freq_deg.csv")[, -1]
 
@@ -117,10 +82,62 @@ p1 <- plot_pca(dat_nondeg) + ggtitle("Full alphabet")
 p2 <- plot_pca(dat_deg) + ggtitle("Reduced alphabet") + guides(fill = FALSE)
 leg <- g_legend(p1)
 
-print(p1)
-@ 
+
+@
+
+Secretory signal peptides:
+        \begin{itemize}
+          \item are short (20-30 residues) N-terminal amino acid sequences,
+            \item direct a protein to the endomembrane system and next to the extracellular localization,
+            \item are universal enough to direct properly proteins in different secretory systems; artifically introduced bacterial signal peptides can guide proteins in mammals~\citep{nagano_2014} and plants~\citep{moeller_2009},
+            \item tag among others hormons, immune system proteins, structural proteins, and metabolic enzymes.
+        \end{itemize}
 
 \end{frame}
+
+  
+  \begin{frame}{}
+
+  \begin{figure}
+\includegraphics[width=0.9\textwidth]{static_figure/SP.png}
+\end{figure}
+Signal peptides possess three distinct domains with variable length and characteristic amino acid composition~\citep{hegde_surprising_2006}:
+      \begin{itemize}
+        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
+        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
+        \item c-region: a few polar, uncharged residues~\citep{jain_signal_1994}.
+      \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+Heavy adenine-thymine bias of parasitic genomes~\cite{Tonkin2008a} alters amino acid composition of malarial signal peptides.
+\end{frame}
+
+\begin{frame}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+print(p1)
+@ 
+\end{frame}
+
+
+\begin{frame}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+1 & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}2 & G, P, S, T, Y \\ 
+  3 & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} 4 & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+
 
 \begin{frame}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=

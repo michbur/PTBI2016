@@ -39,7 +39,6 @@ library(biogram)
 
 load("./dat/signalhsmm_poster.RData")
 
-
 freq_nondeg <- read.csv2("./dat/freq_nondeg.csv")[, -1]
 freq_deg <- read.csv2("./dat/freq_deg.csv")[, -1]
 
@@ -109,9 +108,20 @@ Signal peptides possess three distinct domains with variable length and characte
       \end{itemize}
 \end{frame}
 
+% 1. download plasmodium genomes, show bias
+% 2. how bias alters amino acid composition? show mutations
+% 3. amino acid frequencies in a) eukarytic signal peptides and plasmodium signal peptides
+
+
+\section{Amino acid composition}
 
 \begin{frame}
-Heavy adenine-thymine bias of parasitic genomes~\cite{Tonkin2008a} alters amino acid composition of malarial signal peptides.
+Heavy adenine-thymine bias of parasitic genomes~\citep{Tonkin2008} alters amino acid composition of malarial signal peptides.
+\end{frame}
+
+
+\begin{frame}
+Heavy adenine-thymine bias of parasitic genomes~\citep{Tonkin2008} alters amino acid composition of malarial signal peptides.
 \end{frame}
 
 \begin{frame}

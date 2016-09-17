@@ -22,9 +22,6 @@ mfreq_deg <- melt(freq_nondeg, variable.name = "residue", value.name = "freq") %
   ungroup %>% 
   mutate(gr = assign_gr(residue))
 
-
-assign_gr("A")
-
 ggplot(mfreq_deg, aes(x = residue, y = freq, fill = taxon)) +
   geom_bar(position = "dodge", stat = "identity") +
   facet_grid(gr~ type)

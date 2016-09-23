@@ -1,0 +1,340 @@
+\documentclass[final]{beamer}
+\usepackage{grffile}
+\mode<presentation>{\usetheme{CambridgeUSPOL}}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx}
+\usepackage{epstopdf}
+\usepackage{colortbl, xcolor}
+\newcolumntype{Z}{>{\centering\arraybackslash}X}
+
+% rysunki
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{xxcolor}
+\usetikzlibrary{arrows}
+\usetikzlibrary[topaths]
+\usetikzlibrary{decorations.pathreplacing}
+%\usepackage{times}\usefonttheme{professionalfonts}  % times is obsolete
+\usefonttheme[onlymath]{serif}
+\boldmath
+\usepackage[orientation=portrait,size=a0,scale=1.4,debug]{beamerposter}                       % e.g. for DIN-A0 poster
+%\usepackage[orientation=portrait,size=a1,scale=1.4,grid,debug]{beamerposter}                  % e.g. for DIN-A1 poster, with optional grid and debug output
+%\usepackage[size=custom,width=200,height=120,scale=2,debug]{beamerposter}                     % e.g. for custom size poster
+%\usepackage[orientation=portrait,size=a0,scale=1.0,printer=rwth-glossy-uv.df]{beamerposter}   % e.g. for DIN-A0 poster with rwth-glossy-uv printer check
+% ...
+%
+
+\usecolortheme{seagull}
+\useinnertheme{rectangles}
+\setbeamercolor{item projected}{bg=darkred}
+% \setbeamertemplate{enumerate items}[default]
+\setbeamertemplate{caption}{\insertcaption} 
+\setbeamertemplate{navigation symbols}{}
+\setbeamercovered{transparent}
+\setbeamercolor{block title}{fg=darkred}
+\setbeamercolor{local structure}{fg=darkred}
+
+\setbeamercolor*{enumerate item}{fg=darkred}
+\setbeamercolor*{enumerate subitem}{fg=darkred}
+\setbeamercolor*{enumerate subsubitem}{fg=darkred}
+
+\setbeamercolor*{itemize item}{fg=darkred}
+\setbeamercolor*{itemize subitem}{fg=darkred}
+\setbeamercolor*{itemize subsubitem}{fg=darkred}
+
+\newlength{\columnheight}
+\setlength{\columnheight}{100.5cm}
+\renewcommand{\thetable}{}
+\def\andname{,}
+\authornote{}
+
+\renewcommand{\APACrefatitle}[2]{}
+\renewcommand{\bibliographytypesize}{\footnotesize} 
+\renewcommand{\APACrefYearMonthDay}[3]{%
+  {\BBOP}{#1}
+  {\BBCP}
+}
+
+\begin{document}
+
+<<knitrIntro, echo = FALSE, message=FALSE,warning=FALSE>>=
+source("my_ggplot_theme.R")
+
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+library(dplyr)
+library(reshape2)
+library(xtable)
+library(biogram)
+
+load("signalhsmm_poster.RData")
+
+
+
+@
+
+
+\date{}
+
+\author{Micha\l{} Burdukiewicz\inst{1}*, Piotr Sobczyk\inst{2}, Pawe\l{} B\l{}a\.{z}ej\inst{1}, Pawe\l{} Mackiewicz\inst{1} \\
+*michalburdukiewicz@gmail.com}
+
+\institute{\small{\textsuperscript{1}University of Wroc\l{}aw, Department of Genomics, \textsuperscript{2}Wroc\l{}aw University of Science and Technology, Faculty of Pure and Applied Mathematics}
+}
+
+\title{\huge signalHsmm: prediction of malarial signal peptides}
+
+\begin{frame}
+\begin{columns}
+\begin{column}{.50\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth}
+\parbox[t][\columnheight]{\textwidth}
+{
+\begin{block}{Introduction}
+
+The computational methods for the recognition of signal peptides accurately identify typical peptides, well-represented in protein databases~\citep{petersen_signalp_2011}. However, these algorithms are not general enough to predict more unique signal peptides, for example those present in proteins from parasites belonging to the phylum Apicomplexa. 
+
+Apicomplexans are characterized by a strongly AT-biased genomes and resulting from that the specific amino acid composition of coded proteins, which hinders their computational detection by general predictors. Nevertheless, members of Apicomplexa have a great medically significance, especially \textit{Plasmodium}, a malaria agent. 
+
+    \end{block}
+
+\begin{block}{Signal peptide architecture}
+\begin{figure}[ht]
+        \centering
+        \scalebox{1.22}{
+          \includegraphics{static_figure/SP.png}
+        }
+      \end{figure}
+
+      \begin{itemize}
+        \item n-region: mostly basic residues~\citep{nielsen_prediction_1998},
+        \item h-region: strongly hydrophobic residues~\citep{nielsen_prediction_1998},
+        \item c-region: a few polar, uncharged residues~\citep{jain_signal_1994}.
+      \end{itemize}
+    \end{block}
+
+
+  \begin{block}{Hidden semi-Markov model (HSMM) of a signal peptide}
+      Assumptions of the model:
+      \begin{itemize}
+        \item the observable distribution of amino acids arises due to being in a certain region (state),
+        \item a duration of the state (the length of given region) is modeled by a probability distribution (other than geometric distribution as in typical hidden Markov models).
+      \end{itemize}
+    \end{block}
+    \vfill
+
+\begin{block}{Training  of signalHsmm}
+      \begin{enumerate}[1.]
+        \item Removal of atypical (non-standard amino acids, more than one cleavage site) or poorly annotated records from data set of proteins with signal peptide from UniProtKB 2014\_07 (after purification data set contains 3816 eukaryotic proteins with experimentally confirmed signal peptides and 9795 without signal peptide).
+        \item Determination of n-, h-, c-regions by the heuristic algorithm.
+        \item Reduction of dimensionality by aggregating amino acids to several physicochemical groups.
+        \item Calculation of the amino acid group frequency in each region and the average length of the region.
+        \item Training of two HSMM models for proteins with and without signal peptide.
+      \end{enumerate} 
+    \end{block}
+    \vfill
+  
+    
+    \begin{block}{Signal peptide prediction}
+    During the test phase, each protein is fitted to two HSMMs representing respectively proteins with and without signal peptides. The probabilities of both fits and predicted cleavage site constitute the software output.    
+    \begin{figure}
+    \centering
+    \resizebox{32.5cm}{!}{%
+    \begin{tikzpicture}[->,>=stealth',shorten >=2pt,auto,node distance=9.5cm, thick]
+      \tikzstyle{line} = [draw=black, color=blue!30!black!50, line width=4.5mm, -latex']
+      \tikzstyle{main node} = [circle,fill=blue!20,draw, minimum size = 2.2cm, font=\itshape,
+         align=center,  top color=white, bottom color=blue!50!black!70 ] %font=\sffamily\small\bfseries,
+      %nodes
+      \node[main node]          	(start') 	[]						{Start};	     
+      \node[main node, bottom color=purple!70!black!70] 	(nregion') 	[right of=start',xshift=-5mm, yshift=15mm] 	{n-region};
+      \node[main node, bottom color=pink!70!black!70] 	(hregion') 	[right of=nregion',xshift=-5mm,yshift=15mm] 	{h-region};
+      \node[main node, bottom color=gray!70!black!70] 	(cregion') 	[right of=hregion',xshift=-5mm,yshift=-15mm] 	{c-region};
+      \node[main node, bottom color=green!70!black!70] 	(mature') 	[right of=cregion',xshift=-5mm, yshift=-15mm] 	{Mature protein};
+      
+      %lines
+      \path [line] (start')   edge node [left, color=black] {} (nregion');
+      \path [line] (nregion') edge node [below, color=black] { } (hregion');
+      \path [line] (hregion') edge node [below, color=black] { } (cregion');
+      \path [line] (cregion') edge node [left, color=black] { } (mature');
+      \draw [line] (start') to[out=340,in=200] (mature');
+    \end{tikzpicture} }
+    \end{figure}
+
+    \end{block}
+    \vfill   
+
+    \begin{block}{Classification of amino acids used by signalHsmm}
+    \small
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+1 & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}2 & G, P, S, T, Y \\ 
+  3 & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} 4 & A, C \\ 
+   \bottomrule
+\end{tabular}
+
+%\end{table}
+
+\end{table}
+    \end{block}
+    \vfill
+
+
+\begin{block}{Availability and funding}
+      \small
+      signalHsmm web server: \url{www.smorfland.uni.wroc.pl/signalhsmm}
+
+    This research was partially funded by the KNOW Consortium and National Science Center (2015/17/N/NZ2/01845).
+    
+    Find our poster online: \url{http://github.com/michbur/PTBI2016}
+    \end{block}
+    \vfill 
+
+
+}
+\end{minipage}
+\end{beamercolorbox}
+\end{column}
+
+
+%new column ------------------------------------------------------    
+
+\begin{column}{.51\textwidth}
+\begin{beamercolorbox}[center,wd=\textwidth]{postercolumn}
+\begin{minipage}[T]{.95\textwidth}  
+\parbox[t][\columnheight]{\textwidth}
+{
+
+     \begin{block}{PCA of signal peptides and mature proteins}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=14.5>>=
+freq_nondeg <- read.csv2("freq_nondeg.csv")[, -1]
+freq_deg <- read.csv2("freq_deg.csv")[, -1]
+
+do_pca <- function(x) 
+  x %>% 
+  select(-type, -taxon) %>% 
+  prcomp(center = TRUE, scale = TRUE) %>% 
+  getElement("x") %>% 
+  data.frame() %>% 
+  select(1, 2) %>% 
+  cbind(select(x, type, taxon), .) %>% 
+  mutate(type_nice = factor(type, labels = c("\nMature peptide", "\nSignal peptide")),
+         taxon_nice = factor(taxon, labels = c("other", "Plasmodium"))) %>% 
+  mutate(both = paste0(type_nice, " (", taxon_nice, ")\n"))
+
+dat_deg <- do_pca(freq_deg) 
+dat_nondeg <- do_pca(freq_nondeg)
+
+# dat_deg <- read.table("PCAgr.txt", header = TRUE, sep = "\t")
+# dat_nondeg <- read.table("PCA.txt", header = TRUE, sep = "\t")
+# colnames(dat_deg) <- c("both", "PC1", "PC2")
+# colnames(dat_nondeg) <- c("both", "PC1", "PC2")
+
+plot_pca <- function(x)
+  ggplot(x, aes(x = PC1, y = PC2, fill = both)) + 
+  geom_density_2d(color = "black", contour = TRUE) +
+  #geom_point() +
+  stat_density2d(aes(fill=both,alpha=..level..), color = "black", contour = TRUE, geom="polygon") +
+  scale_linetype_discrete("") +
+  scale_fill_discrete("") +
+  scale_shape_discrete("") +
+  scale_color_discrete("") +
+  scale_x_continuous("Principal Component 1") +
+  scale_y_continuous("Principal Component 2") +
+  scale_alpha_continuous(range = c(0.25, 0.4)) +
+  guides(alpha = FALSE) +
+  my_theme
+
+p1 <- plot_pca(dat_nondeg) + ggtitle("Full alphabet") 
+p2 <- plot_pca(dat_deg) + ggtitle("Reduced alphabet") + guides(fill = FALSE)
+leg <- g_legend(p1)
+
+grid.arrange(p1 + guides(fill = FALSE), p2, leg, nrow = 3, heights = c(0.47, 0.47, 0.06))
+
+@ 
+
+Countour plot of first two components in Pricincipal Compoment Analysis of amino acid frequency. The signal peptides from malaria and other taxons differ significantly when the full amino acid alphabet is employed. After the reduction of the alphabet, the signal peptides group together despite their origin.
+
+    \end{block}
+    \vfill
+
+    
+    \begin{block}{Benchmark with other predictors of signal peptides}
+    Benchmark data set: 51 proteins with signal peptide and 211 proteins without signal peptide from members of \textit{Plasmodiidae}.
+    
+    \vspace{.5cm}
+    
+    signalHsmm1987: trained on data set of 496 eukaryotic proteins with signal peptides added before year 1987.
+    
+    \vspace{.5cm}
+    
+    signalHsmm2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
+    \small
+    \begin{table}[ht]
+\centering
+\begin{tabular}{rllll}
+  \toprule
+ & Sensitivity & Specificity & MCC & AUC \\ 
+  \midrule
+signalP 4.1 (no tm) \citep{petersen_signalp_2011} & 0.8235 & 0.9100 & 0.6872 & 0.8667 \\ 
+   \rowcolor[gray]{0.85}signalP 4.1 (tm) \citep{petersen_signalp_2011} & 0.6471 & 0.9431 & 0.6196 & 0.7951 \\ 
+  signalP 3.0 (NN) \citep{DyrlovBendtsen2004783} & 0.8824 & 0.9052 & 0.7220 & 0.8938 \\ 
+   \rowcolor[gray]{0.85}signalP 3.0 (HMM) \citep{DyrlovBendtsen2004783} & 0.6275 & 0.9194 & 0.5553 & 0.7734 \\ 
+  PrediSi \citep{hiller_predisi:_2004} & 0.3333 & \textbf{0.9573} & 0.3849 & 0.6453 \\ 
+   \rowcolor[gray]{0.85}Philius \citep{reynolds_transmembrane_2008} & 0.6078 & 0.9336 & 0.5684 & 0.7707 \\ 
+  Phobius \citep{kall_combined_2004} & 0.6471 & 0.9289 & 0.5895 & 0.7880 \\ 
+   \rowcolor[gray]{0.85}signalHsmm-2010 & 0.9804 & 0.8720 & 0.7409 & 0.9262 \\ 
+  signalHsmm-2010 (hom. 50\%) & \textbf{1.0000} & 0.8768 & \textbf{0.7621} & \textbf{0.9384} \\ 
+   \rowcolor[gray]{0.85}signalHsmm-2010 (raw aa) & 0.8431 & 0.9005 & 0.6853 & 0.8718 \\ 
+  signalHsmm-1987 & 0.9216 & 0.8910 & 0.7271 & 0.9063 \\ 
+   \rowcolor[gray]{0.85}signalHsmm-1987 (hom. 50\%) & 0.9412 & 0.8768 & 0.7194 & 0.9090 \\ 
+  signalHsmm-1987 (raw aa) & 0.7647 & 0.9052 & 0.6350 & 0.8350 \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+    \end{block}
+    \vfill
+     
+    \begin{block}{Conclusions}
+      Thanks to the reduction of amino acid alphabet, signalHsmm is able to recognize signal peptides from the malaria parasites and their relatives more accurately than other software. Simultaneously, our software is still universal enough to provide prediction of other eukaryotic signal peptides on par with the best-performing predictors.
+      
+      \medskip
+      
+      Our model is able to extract decision rules from even very small datasets. Therefore, our model does not need to be permanently retrained with the continuous expansion of sequence databases. 
+    \end{block}
+    \vfill 
+    
+        
+     
+     
+    \begin{block}{Bibliography}
+    \tiny{
+      \bibliographystyle{apalike}
+      \bibliography{signalhsmm_poster}
+    }
+    \end{block}
+    \vfill 
+
+
+}
+\end{minipage}
+\end{beamercolorbox}
+\end{column}
+\end{columns}  
+\end{frame}
+\end{document}

@@ -89,13 +89,13 @@ Secretory signal peptides:
           \item are short (20-30 residues) N-terminal amino acid sequences,
             \item direct a protein to the endomembrane system and next to the extracellular localization,
             \item are universal enough to direct properly proteins in different secretory systems; artifically introduced bacterial signal peptides can guide proteins in mammals~\citep{nagano_2014} and plants~\citep{moeller_2009},
-            \item tag among others hormons, immune system proteins, structural proteins, and metabolic enzymes.
+            \item tag hormons, immune system proteins, structural proteins, and metabolic enzymes.
         \end{itemize}
 
 \end{frame}
 
   
-  \begin{frame}{}
+  \begin{frame}{Architecture}
 
   \begin{figure}
 \includegraphics[width=0.9\textwidth]{static_figure/SP.png}
@@ -108,21 +108,43 @@ Signal peptides possess three distinct domains with variable length and characte
       \end{itemize}
 \end{frame}
 
+
+
+
 % 1. download plasmodium genomes, show bias
 % 2. how bias alters amino acid composition? show mutations
 % 3. amino acid frequencies in a) eukarytic signal peptides and plasmodium signal peptides
 
 
-\section{Amino acid composition}
+\section{Malarial signal peptides}
 
-\begin{frame}
-Heavy adenine-thymine bias of parasitic genomes~\citep{Tonkin2008} alters amino acid composition of malarial signal peptides.
+\begin{frame}{Apicoplast}
+Four membrane-bounded plastid responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids, haem and iron–sulfur clusters.
 \end{frame}
 
 
-\begin{frame}
-Heavy adenine-thymine bias of parasitic genomes~\citep{Tonkin2008} alters amino acid composition of malarial signal peptides.
+\begin{frame}{Apicoplast}
+The signal peptide is required for targeting the apicoplast protein to the endomembrane system, whereas the transit peptide is required to traffic the protein to the apicoplast.
+
+TUTAJ FIG2.
 \end{frame}
+
+\begin{frame}
+Heavy adenine-thymine bias of parasitic genomes alters amino acid composition of malarial signal peptides.
+\end{frame}
+
+\begin{frame}
+Even nonbiological sequences can be effective signal peptides provided they fulfill general requirements.
+
+$\textnormal{NH}_2$-SKINNYSLINKYKINKYTHING-COOH - targets apicoplast.
+
+$\textnormal{NH}_2$-ITWILLNEVERTARGETPLASTID-COOH - does not target apicoplast.
+
+\end{frame}
+
+
+\section{Results}
+
 
 \begin{frame}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
@@ -153,24 +175,54 @@ Group & Amino acids \\
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 print(p2)
 @ 
+
+
+Signal peptides, after the reduction of the amino acid alphabet, group together despite their different origins.
+
 \end{frame}
 
 
 
 \begin{frame}
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=11>>=
 grid.arrange(p1 + guides(fill = FALSE), p2 + guides(fill = FALSE), 
-             leg, nrow = 3, heights = c(0.47, 0.47, 0.06))
+             leg, nrow = 3, heights = c(0.48, 0.48, 0.04))
 
 @ 
 
-
 \end{frame}
 
-
-\begin{frame}
-
-Countour plot of first two components in Pricincipal Compoment Analysis of amino acid frequency. The signal peptides from malaria and other taxons differ significantly when the full amino acid alphabet is employed. After the reduction of the alphabet, the signal peptides group together despite their origin.
+\begin{frame}{Benchmark}
+Benchmark data set: 51 proteins with signal peptide and 211 proteins without signal peptide from members of \textit{Plasmodiidae}.
+\end{frame}
+    
+\begin{frame}{Benchmark}    
+    \begin{table}
+\centering
+\begin{tabular}{rll}
+\hline
+                                                                              & MCC               & AUC               \\ \hline
+signalP 4.1 (no tm) \citep{petersen_signalp_2011}                         & 0.6872            & 0.8667            \\
+\rowcolor[gray]{0.85}signalP 4.1 (tm) \citep{petersen_signalp_2011} & 0.6196            & 0.7951            \\
+signalP 3.0 (NN) \citep{DyrlovBendtsen2004783}                              & 0.7220            & 0.8938            \\
+\rowcolor[gray]{0.85}signalP 3.0 (HMM) \citep{DyrlovBendtsen2004783}  & 0.5553            & 0.7734            \\
+%PrediSi \citep{hiller_predisi:_2004}                                      & 0.3849            & 0.6453            \\
+%\rowcolor[gray]{0.85}Philius \citep{reynolds_transmembrane_2008}    & 0.5684            & 0.7707            \\
+Phobius \citep{kall_combined_2004}                                        & 0.5895            & 0.7880            \\
+\rowcolor[gray]{0.85}signalHsmm-2010                                    & 0.7409            & 0.9262            \\
+signalHsmm-2010 (hom. 50\%)                                                   & \textbf{0.7621} & \textbf{0.9384} \\
+\rowcolor[gray]{0.85}signalHsmm-2010 (raw aa)                           & 0.6853            & 0.8718            \\
+signalHsmm-1987                                                               & 0.7271            & 0.9063            \\
+\rowcolor[gray]{0.85}signalHsmm-1987 (hom. 50\%)                        & 0.7194            & 0.9090            \\
+signalHsmm-1987 (raw aa)                                                      & 0.6350            & 0.8350            \\ \hline
+\end{tabular}
+\end{table}
+\small 
+signalHsmm1987: trained on data set of 496 eukaryotic proteins with signal peptides added before year 1987.
+    
+signalHsmm2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
+    
+    
 
 \end{frame}
 

@@ -27,22 +27,4 @@ ggplot(mfreq_deg, aes(x = residue, y = freq, fill = taxon)) +
   facet_grid(gr~ type)
 
 
-mfreq <- filter(freq_deg, type == "signal") %>% 
-  melt(variable.name = "residue", value.name = "freq") %>% 
-  mutate(taxon = factor(taxon, labels = c("other", "Plasmodium")))
 
-plas_freq <- group_by(mfreq, taxon, residue) %>% 
-  summarise(med = median(freq)) %>% 
-  dcast(residue ~ taxon) %>% 
-  mutate(plas = ifelse(Plasmodium - other > 0, "plas", ifelse(Plasmodium - other == 0, "eq", "other"))) %>% 
-  select(residue, plas) %>% 
-  mutate(plas = factor(plas, labels = c("No difference", "Typical for other\nsignal peptides", 
-                                        "Typical for Plasmodium\nsignal peptides")))
-
-
-ggplot(inner_join(mfreq, plas_freq), aes(x = residue, y = freq, color = taxon)) +
-  geom_boxplot(position = position_dodge(width = 0.9)) +
-  facet_wrap(~ plas, ncol = 3, scales = "free_x") +
-  scale_x_discrete("Residue") +
-  scale_y_continuous("Normalized requency") +
-  scale_color_discrete("Taxon")

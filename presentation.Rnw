@@ -86,7 +86,7 @@ leg <- g_legend(p1)
 
 Secretory signal peptides:
         \begin{itemize}
-          \item are short (20-30 residues) N-terminal amino acid sequences,
+          \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
             \item direct a protein to the endomembrane system and next to the extracellular localization,
             \item are universal enough to direct properly proteins in different secretory systems; artifically introduced bacterial signal peptides can guide proteins in mammals~\citep{nagano_2014} and plants~\citep{moeller_2009},
             \item tag hormons, immune system proteins, structural proteins, and metabolic enzymes.
@@ -119,22 +119,71 @@ Signal peptides possess three distinct domains with variable length and characte
 \section{Malarial signal peptides}
 
 \begin{frame}{Apicoplast}
-Four membrane-bounded plastid responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids, haem and iron–sulfur clusters.
+Four membrane-bounded plastid responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids and haem.
 \end{frame}
 
 
 \begin{frame}{Apicoplast}
 The signal peptide is required for targeting the apicoplast protein to the endomembrane system, whereas the transit peptide is required to traffic the protein to the apicoplast.
 
-TUTAJ FIG2.
+\begin{figure}
+\includegraphics[width=0.9\textwidth]{static_figure/apicoplast.jpg}
+\end{figure}
+
+\citet{kalanon_malaria_2010}
+\end{frame}
+
+\begin{frame}{Apicoplast}
+The absence of a metabolic counterpart in human host make the apicoplast proteins promising targets for anti-malarial drug development.
 \end{frame}
 
 \begin{frame}
-Heavy adenine-thymine bias of parasitic genomes alters amino acid composition of malarial signal peptides.
+Heavy adenine-thymine bias of parasitic genomes alters amino acid composition of malarial signal peptides making them hard to predict using software trained on other Eukaryotes.
 \end{frame}
 
 \begin{frame}
-Even nonbiological sequences can be effective signal peptides provided they fulfill general requirements.
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+mfreq <- filter(freq_nondeg, type == "signal") %>% 
+  melt(variable.name = "residue", value.name = "freq") %>% 
+  mutate(taxon = factor(taxon, labels = c("other", "Plasmodium")))
+
+plas_freq <- group_by(mfreq, taxon, residue) %>% 
+  summarise(med = median(freq)) %>% 
+  dcast(residue ~ taxon) %>% 
+  mutate(plas = ifelse(Plasmodium - other > 0, "plas", ifelse(Plasmodium - other == 0, "eq", "other"))) %>% 
+  select(residue, plas) %>% 
+  mutate(plas = factor(plas, labels = c("No difference", "Typical for other\nsignal peptides", 
+                                        "Typical for Plasmodium\nsignal peptides")))
+
+
+ggplot(inner_join(mfreq, plas_freq), aes(x = residue, y = freq, color = taxon)) +
+  geom_boxplot(position = position_dodge(width = 0.9), notch = TRUE) +
+  facet_wrap(~ plas, ncol = 3, scales = "free_x") +
+  scale_x_discrete("Residue") +
+  scale_y_continuous("Normalized requency") +
+  scale_color_discrete("Taxon") +
+  my_theme
+@
+\end{frame}
+
+\begin{frame}
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+print(p1)
+@ 
+\end{frame}
+
+
+
+
+\section{Methods}
+
+
+\begin{frame}
+  Do signal peptides require the exact sequence of amino acids?
+  \end{frame}
+
+\begin{frame}
+Even nonbiological sequences can be effective signal peptides provided they fulfill general requirements~\citep{tonkin_evolution_2008}.
 
 $\textnormal{NH}_2$-SKINNYSLINKYKINKYTHING-COOH - targets apicoplast.
 
@@ -143,13 +192,82 @@ $\textnormal{NH}_2$-ITWILLNEVERTARGETPLASTID-COOH - does not target apicoplast.
 \end{frame}
 
 
+\begin{frame}{Reduced amino acid alphabets}
+To date, several reduced amino acid alphabets have been proposed, which have been applied to (among others) protein folding and protein structure prediction.
+  \end{frame}
+
+
+
+\begin{frame}{Novel reduced amino acid alphabets}
+13 physicochemical properties handpicked from AAIndex database relevant to 
+\end{frame}
+
+\begin{frame}{Novel reduced amino acid alphabets}
+\small
+  \begin{table}[ht]
+\begin{tabular}{ll}
+  \toprule
+Property name & Amino acid scale \\ 
+  \midrule
+Size & Size \\ 
+   \rowcolor[gray]{0.85}Size & Molecular weight\\ 
+  Size & Residue volume \\ 
+   \rowcolor[gray]{0.85}Size & Bulkiness \\ 
+  Hydrophobicity & Normalized hydrophobicity scales for $\alpha$-proteins \\ 
+   \rowcolor[gray]{0.85}Hydrophobicity & Consensus normalized hydrophobicity scale\\ 
+  Hydrophobicity & Hydropathy index \\ 
+   \rowcolor[gray]{0.85}Hydrophobicity & Surrounding hydrophobicity in $\alpha$-helix\\ 
+  Polarity & Polarity \\ 
+   \rowcolor[gray]{0.85}Polarity & Mean polarity \\ 
+  Occurrence in $\alpha$-helices & Signal sequence helical potential \\ 
+   \rowcolor[gray]{0.85}Occurrence in $\alpha$-helices & Normalized frequency of N-terminal helix\\ 
+  Occurrence in $\alpha$-helices & Relative frequency in $\alpha$-helix \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Cross-validation}
+We built 96 reduced amino acid alphabets (each based on one scale per a given property category) and evaluated them in cross-validation experiment using eukaryotic sequences.
+\end{frame}
+
+
 \section{Results}
 
+\begin{frame}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+I & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}II & G, P, S, T, Y \\ 
+  III & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} IV & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+I. Amino acids absent in h-region.
+\end{frame}
 
 \begin{frame}
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
-print(p1)
-@ 
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+I & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}II & G, P, S, T, Y \\ 
+  III & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} IV & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+II. Amino acids common in c-region.
 \end{frame}
 
 
@@ -160,16 +278,16 @@ print(p1)
   \toprule
 Group & Amino acids \\ 
   \midrule
-1 & D, E, H, K, N, Q, R \\ 
-   \rowcolor[gray]{0.85}2 & G, P, S, T, Y \\ 
-  3 & F, I, L, M, V, W \\ 
-   \rowcolor[gray]{0.85} 4 & A, C \\ 
+I & D, E, H, K, N, Q, R \\ 
+   \rowcolor[gray]{0.85}II & G, P, S, T, Y \\ 
+  III & F, I, L, M, V, W \\ 
+   \rowcolor[gray]{0.85} IV & A, C \\ 
    \bottomrule
 \end{tabular}
 \end{table}
+
+III. Amino acids common in h-region.
 \end{frame}
-
-
 
 \begin{frame}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
@@ -222,7 +340,12 @@ signalHsmm1987: trained on data set of 496 eukaryotic proteins with signal pepti
     
 signalHsmm2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
     
-    
+\end{frame}
+
+
+\begin{frame}{Conclusions}
+
+Eukaryotic signal peptides have very similar amino acid composition in their regions considering only the physicochemical properties of residues.
 
 \end{frame}
 

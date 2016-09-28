@@ -120,6 +120,17 @@ Signal peptides possess three distinct domains with variable length and characte
 
 \section{Malarial signal peptides}
 
+
+\begin{frame}{Transit signal}
+The \textbf{signal peptide} is required for targeting proteins to intracellular locations through the endomembrane system, for example Plasmodium-specific apicoplast.
+
+\begin{figure}
+\includegraphics[width=0.9\textwidth]{static_figure/apicoplast.jpg}
+\end{figure}
+
+\citet{kalanon_malaria_2010}
+\end{frame}
+
 \begin{frame}{Apicoplast}
 Four membrane-bounded plastid of Plasmodium sp. responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids and haem.
 
@@ -132,15 +143,6 @@ Four membrane-bounded plastid of Plasmodium sp. responsible for several biochemi
 \end{frame}
 
 
-\begin{frame}{Bi-partite transit signal}
-The \textbf{signal peptide} is required for targeting the apicoplast protein to the endomembrane system, whereas the \textbf{transit peptide} is required to traffic the protein to the apicoplast.
-
-\begin{figure}
-\includegraphics[width=0.9\textwidth]{static_figure/apicoplast.jpg}
-\end{figure}
-
-\citet{kalanon_malaria_2010}
-\end{frame}
 
 \begin{frame}{Apicoplast}
 The absence of a metabolic counterpart in human host make the apicoplast proteins promising targets for anti-malarial drug development.
@@ -236,7 +238,7 @@ ggplot(cv_dat, aes(x = Sens, y = Spec, color = AUC, shape = best)) +
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Best sensitivity encoding}
 \begin{table}[ht]
 \centering
 \begin{tabular}{ll}
@@ -253,7 +255,7 @@ I & D, E, H, K, N, Q, R \\
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Best sensitivity encoding}
 \begin{table}[ht]
 \centering
 \begin{tabular}{ll}
@@ -271,7 +273,7 @@ Group & Amino acids \\
 I. Charged or uncharged but polar amino acids absent in h-region.
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Best sensitivity encoding}
 \begin{table}[ht]
 \centering
 \begin{tabular}{ll}
@@ -290,7 +292,7 @@ II. Polar and uncharged amino acids common in c-region.
 \end{frame}
 
 
-\begin{frame}
+\begin{frame}{Best sensitivity encoding}
 \begin{table}[ht]
 \centering
 \begin{tabular}{ll}
@@ -332,6 +334,9 @@ grid.arrange(p1 + guides(fill = FALSE) + ggtitle("Full alphabet"),
 
 \begin{frame}{Benchmark}
 Benchmark data set: 51 proteins with signal peptide and 211 proteins without signal peptide from members of \textit{Plasmodiidae}.
+
+Predictor: \textit{signalHsmm}-2010, hidden semi-Markov model trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010 encoded using the best sensitivity reduced alphabet.
+
 \end{frame}
     
 \begin{frame}{Benchmark}    
@@ -350,14 +355,15 @@ signalP 3.0 (NN) \citep{DyrlovBendtsen2004783}                              & 0.
 Phobius \citep{kall_combined_2004}                                        & 0.5895            & 0.7880            \\
 \hline
 \hline
-\rowcolor[gray]{0.85}signalHsmm-2010                                    & 0.7409            & 0.9262            \\
-signalHsmm-2010 (hom. 50\%)                                                   & \textbf{0.7621} & \textbf{0.9384} \\
-\rowcolor[gray]{0.85}signalHsmm-2010 (full alphabet)                           & 0.6853            & 0.8718            \\
+\rowcolor[gray]{0.85}\textit{signalHsmm}-2010                                    & 0.7409            & 0.9262            \\
+\textit{signalHsmm}-2010 (hom. 50\%)                                                   & \textbf{0.7621} & \textbf{0.9384} \\
+\rowcolor[gray]{0.85}\textit{signalHsmm}-2010 (full alphabet)                           & 0.6853            & 0.8718            \\
 \hline
 \end{tabular}
 \end{table}
 
-signalHsmm-2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
+Full alphabet: no amino alphabet reduction.
+hom. 50\%: 50\% homology reduction in the learning data set.
     
 \end{frame}
 
@@ -366,16 +372,18 @@ signalHsmm-2010: trained on data set of 3676 eukaryotic proteins with signal pep
 
 Eukaryotic signal peptides have very similar amino acid composition in their regions considering only the physicochemical properties of residues.
 
-signalHsmm allows sensitive scanning of malarial proteome for potential drug targets.
+\textit{signalHsmm} allows sensitive scanning of proteomes for potential drug targets whenever the protein of the interest is guided to specific subcellular compartments of pathogenic organisms.
+
+
 
 \end{frame}
 
 
 \begin{frame}{Availability}
 
-signalHsmm web-server \url{http://smorfland.uni.wroc.pl/shiny/signalHsmm}.
+\textit{signalHsmm} web-server \url{http://smorfland.uni.wroc.pl/shiny/signalHsmm}.
 
-signalHsmm R package \url{https://CRAN.R-project.org/package=signalHsmm}.
+\textit{signalHsmm} R package \url{https://CRAN.R-project.org/package=signalHsmm}.
 
 \end{frame}
 

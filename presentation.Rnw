@@ -51,8 +51,9 @@ do_pca <- function(x)
   select(1, 2) %>% 
   cbind(select(x, type, taxon), .) %>% 
   mutate(type_nice = factor(type, labels = c("Mature peptide", "Signal peptide")),
-         taxon_nice = factor(taxon, labels = c("other", "Plasmodium"))) %>% 
-  mutate(both = paste0(type_nice, "\n(", taxon_nice, ")\n"))
+         taxon_nice = factor(taxon, labels = c("other eukaryotes", "Plasmodium"))) %>% 
+  mutate(both = paste0(type_nice, "\n(", taxon_nice, ")\n")) %>% 
+  filter(type_nice == "Signal peptide")
 
 dat_deg <- do_pca(freq_deg) 
 dat_nondeg <- do_pca(freq_nondeg)
@@ -68,7 +69,8 @@ plot_pca <- function(x)
   #geom_point() +
   stat_density2d(aes(fill=both,alpha=..level..), color = "black", contour = TRUE, geom="polygon") +
   scale_linetype_discrete("") +
-  scale_fill_discrete("") +
+  scale_fill_manual("", values = c("dodgerblue1", "firebrick1"), 
+                    labels = c("Other eukaryotes", "Plasmodium sp.")) +
   scale_shape_discrete("") +
   scale_color_discrete("") +
   scale_x_continuous("Principal Component 1\n") +
@@ -77,17 +79,17 @@ plot_pca <- function(x)
   guides(alpha = FALSE) +
   my_theme
 
-p1 <- plot_pca(dat_nondeg) + ggtitle("Full alphabet") 
-p2 <- plot_pca(dat_deg) + ggtitle("Reduced alphabet") + guides(fill = FALSE)
+p1 <- plot_pca(dat_nondeg) 
+p2 <- plot_pca(dat_deg)
 leg <- g_legend(p1)
 
 
 @
 
 Secretory signal peptides:
-        \begin{itemize}
+        \begin{itemize}[<+->]
           \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
-            \item direct a protein to the endomembrane system and next to the extracellular localization,
+            \item direct a protein to the endomembrane system and next to extra- or intracellular localizations,
             \item are universal enough to direct properly proteins in different secretory systems; artifically introduced bacterial signal peptides can guide proteins in mammals~\citep{nagano_2014} and plants~\citep{moeller_2009},
             \item tag hormons, immune system proteins, structural proteins, and metabolic enzymes.
         \end{itemize}
@@ -119,12 +121,19 @@ Signal peptides possess three distinct domains with variable length and characte
 \section{Malarial signal peptides}
 
 \begin{frame}{Apicoplast}
-Four membrane-bounded plastid responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids and haem.
+Four membrane-bounded plastid of Plasmodium sp. responsible for several biochemical pathways including the biosynthesis of fatty acids, isoprenoids and haem.
+
+
+\begin{figure}
+\includegraphics[width=0.7\textwidth]{static_figure/apicoplast_tem.png}
+\end{figure}
+
+\citet{ralph_tropical_2004}
 \end{frame}
 
 
-\begin{frame}{Apicoplast}
-The signal peptide is required for targeting the apicoplast protein to the endomembrane system, whereas the transit peptide is required to traffic the protein to the apicoplast.
+\begin{frame}{Bi-partite transit signal}
+The \textbf{signal peptide} is required for targeting the apicoplast protein to the endomembrane system, whereas the \textbf{transit peptide} is required to traffic the protein to the apicoplast.
 
 \begin{figure}
 \includegraphics[width=0.9\textwidth]{static_figure/apicoplast.jpg}
@@ -135,14 +144,13 @@ The signal peptide is required for targeting the apicoplast protein to the endom
 
 \begin{frame}{Apicoplast}
 The absence of a metabolic counterpart in human host make the apicoplast proteins promising targets for anti-malarial drug development.
+
 \end{frame}
 
 \begin{frame}
-Heavy adenine-thymine bias of parasitic genomes alters amino acid composition of malarial signal peptides making them hard to predict using software trained on other Eukaryotes.
-\end{frame}
+Heavy adenine-thymine bias of malarial genomes alters amino acid composition of malarial signal peptides making them hard to predict using software trained on other eukaryotes.
 
-\begin{frame}
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=8>>=
 mfreq <- filter(freq_nondeg, type == "signal") %>% 
   melt(variable.name = "residue", value.name = "freq") %>% 
   mutate(taxon = factor(taxon, labels = c("other", "Plasmodium")))
@@ -152,34 +160,39 @@ plas_freq <- group_by(mfreq, taxon, residue) %>%
   dcast(residue ~ taxon) %>% 
   mutate(plas = ifelse(Plasmodium - other > 0, "plas", ifelse(Plasmodium - other == 0, "eq", "other"))) %>% 
   select(residue, plas) %>% 
-  mutate(plas = factor(plas, labels = c("No difference", "Typical for other\nsignal peptides", 
-                                        "Typical for Plasmodium\nsignal peptides")))
+  mutate(plas = factor(plas, labels = c("Rare amino acids", "Typical for other\nsignal peptides", 
+                                        "Typical for Plasmodium sp.\nsignal peptides")))
 
 
 ggplot(inner_join(mfreq, plas_freq), aes(x = residue, y = freq, color = taxon)) +
   geom_boxplot(position = position_dodge(width = 0.9), notch = TRUE) +
   facet_wrap(~ plas, ncol = 3, scales = "free_x") +
-  scale_x_discrete("Residue") +
-  scale_y_continuous("Normalized requency") +
-  scale_color_discrete("Taxon") +
+  scale_x_discrete("Amino acid") +
+  scale_y_continuous("Normalized frequency") +
+  scale_color_manual("Taxon", values = c("dodgerblue1", "firebrick1"), 
+                     labels = c("Other eukaryotes", "Plasmodium sp.")) +
   my_theme
 @
+\small If notches are overlapping, two groups can be considered equal.
+
 \end{frame}
 
-\begin{frame}
+\begin{frame}{PCA of amino acid frequency}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 print(p1)
 @ 
 \end{frame}
 
-
-
-
-\section{Methods}
-
-
 \begin{frame}
-  Do signal peptides require the exact sequence of amino acids?
+Since amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes, predictors of signal peptides do not predict malarial signal peptides accurately.
+
+There are no enough malarial signal peptides to train a specialized predictor.
+  \end{frame}
+
+
+
+\begin{frame}{Aim}
+  Can we employ decision rules used for prediction of eukaryotic signal peptides to correctly detect malarial signal peptides?
   \end{frame}
 
 \begin{frame}
@@ -192,18 +205,15 @@ $\textnormal{NH}_2$-ITWILLNEVERTARGETPLASTID-COOH - does not target apicoplast.
 \end{frame}
 
 
+\section{Methods}
+
 \begin{frame}{Reduced amino acid alphabets}
 To date, several reduced amino acid alphabets have been proposed, which have been applied to (among others) protein folding and protein structure prediction.
   \end{frame}
 
-
-
 \begin{frame}{Novel reduced amino acid alphabets}
-13 physicochemical properties handpicked from AAIndex database relevant to 
-\end{frame}
-
-\begin{frame}{Novel reduced amino acid alphabets}
-\small
+13 physicochemical properties handpicked from AAIndex database relevant to the regional architecture of signal peptides.
+\tiny
   \begin{table}[ht]
 \begin{tabular}{ll}
   \toprule
@@ -228,28 +238,30 @@ Size & Size \\
 \end{frame}
 
 \begin{frame}{Cross-validation}
-We built 96 reduced amino acid alphabets (each based on one scale per a given property category) and evaluated them in cross-validation experiment using eukaryotic sequences.
-\end{frame}
+We built 96 reduced amino acid alphabets (each based on one scale per a given property category) of length 4 (four distinct regions: n-, h-, c-region, mature protein).
 
+Alphabets were evaluated in a cross-validation experiment using hidden semi-Markov models trained on eukaryotic sequences.
+\end{frame}
 
 \section{Results}
 
 \begin{frame}
-\begin{table}[ht]
-\centering
-\begin{tabular}{ll}
-  \toprule
-Group & Amino acids \\ 
-  \midrule
-I & D, E, H, K, N, Q, R \\ 
-   \rowcolor[gray]{0.85}II & G, P, S, T, Y \\ 
-  III & F, I, L, M, V, W \\ 
-   \rowcolor[gray]{0.85} IV & A, C \\ 
-   \bottomrule
-\end{tabular}
-\end{table}
 
-I. Amino acids absent in h-region.
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+cv_dat <- read.csv("./dat/cv_res.csv") %>% 
+  mutate(best = Sens == max(Sens))
+
+ggplot(cv_dat, aes(x = Sens, y = Spec, color = AUC, shape = best)) +
+  geom_point(size = 5) +
+  scale_color_gradient(low = "blue", high = "red") +
+  scale_x_continuous("Sensitivity") +
+  scale_y_continuous("Specificity") +
+  scale_shape_discrete("Best sensitivity reduced alphabet") +
+  guides(color = guide_colorbar(barwidth = unit(50, "line"))) +
+  my_theme
+@
+
+
 \end{frame}
 
 \begin{frame}
@@ -267,7 +279,42 @@ I & D, E, H, K, N, Q, R \\
 \end{tabular}
 \end{table}
 
-II. Amino acids common in c-region.
+\end{frame}
+
+\begin{frame}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+\rowcolor{red!20}I & D, E, H, K, N, Q, R \\ 
+   II & G, P, S, T, Y \\ 
+  III & F, I, L, M, V, W \\ 
+   IV & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+I. Charged or uncharged but polar amino acids absent in h-region.
+\end{frame}
+
+\begin{frame}
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+  \toprule
+Group & Amino acids \\ 
+  \midrule
+I & D, E, H, K, N, Q, R \\ 
+   \rowcolor{red!20}II & G, P, S, T, Y \\ 
+  III & F, I, L, M, V, W \\ 
+   IV & A, C \\ 
+   \bottomrule
+\end{tabular}
+\end{table}
+
+II. Polar and uncharged amino acids common in c-region.
 \end{frame}
 
 
@@ -279,17 +326,17 @@ II. Amino acids common in c-region.
 Group & Amino acids \\ 
   \midrule
 I & D, E, H, K, N, Q, R \\ 
-   \rowcolor[gray]{0.85}II & G, P, S, T, Y \\ 
-  III & F, I, L, M, V, W \\ 
-   \rowcolor[gray]{0.85} IV & A, C \\ 
+   II & G, P, S, T, Y \\ 
+  \rowcolor{red!20}III & F, I, L, M, V, W \\ 
+   IV & A, C \\ 
    \bottomrule
 \end{tabular}
 \end{table}
 
-III. Amino acids common in h-region.
+III. Hydrophobic amino acids common in h-region.
 \end{frame}
 
-\begin{frame}
+\begin{frame}{PCA of amino acid frequency}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 print(p2)
 @ 
@@ -301,9 +348,10 @@ Signal peptides, after the reduction of the amino acid alphabet, group together 
 
 
 
-\begin{frame}
+\begin{frame}{PCA of amino acid frequency}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=11>>=
-grid.arrange(p1 + guides(fill = FALSE), p2 + guides(fill = FALSE), 
+grid.arrange(p1 + guides(fill = FALSE) + ggtitle("Full alphabet"), 
+             p2 + guides(fill = FALSE) + ggtitle("Reduced alphabet") , 
              leg, nrow = 3, heights = c(0.48, 0.48, 0.04))
 
 @ 
@@ -316,6 +364,7 @@ Benchmark data set: 51 proteins with signal peptide and 211 proteins without sig
     
 \begin{frame}{Benchmark}    
     \begin{table}
+
 \centering
 \begin{tabular}{rll}
 \hline
@@ -327,27 +376,37 @@ signalP 3.0 (NN) \citep{DyrlovBendtsen2004783}                              & 0.
 %PrediSi \citep{hiller_predisi:_2004}                                      & 0.3849            & 0.6453            \\
 %\rowcolor[gray]{0.85}Philius \citep{reynolds_transmembrane_2008}    & 0.5684            & 0.7707            \\
 Phobius \citep{kall_combined_2004}                                        & 0.5895            & 0.7880            \\
+\hline
+\hline
 \rowcolor[gray]{0.85}signalHsmm-2010                                    & 0.7409            & 0.9262            \\
 signalHsmm-2010 (hom. 50\%)                                                   & \textbf{0.7621} & \textbf{0.9384} \\
-\rowcolor[gray]{0.85}signalHsmm-2010 (raw aa)                           & 0.6853            & 0.8718            \\
-signalHsmm-1987                                                               & 0.7271            & 0.9063            \\
-\rowcolor[gray]{0.85}signalHsmm-1987 (hom. 50\%)                        & 0.7194            & 0.9090            \\
-signalHsmm-1987 (raw aa)                                                      & 0.6350            & 0.8350            \\ \hline
+\rowcolor[gray]{0.85}signalHsmm-2010 (full alphabet)                           & 0.6853            & 0.8718            \\
+\hline
 \end{tabular}
 \end{table}
-\small 
-signalHsmm1987: trained on data set of 496 eukaryotic proteins with signal peptides added before year 1987.
-    
-signalHsmm2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
+
+signalHsmm-2010: trained on data set of 3676 eukaryotic proteins with signal peptides added before year 2010.
     
 \end{frame}
 
 
-\begin{frame}{Conclusions}
+\begin{frame}{Conclusions and perspectives}
 
 Eukaryotic signal peptides have very similar amino acid composition in their regions considering only the physicochemical properties of residues.
 
+signalHsmm allows sensitive scanning of malarial proteome for potential drug targets.
+
 \end{frame}
+
+
+\begin{frame}{Availability}
+
+signalHsmm web-server \url{http://smorfland.uni.wroc.pl/shiny/signalHsmm}.
+
+signalHsmm R package \url{https://CRAN.R-project.org/package=signalHsmm}.
+
+\end{frame}
+
 
 \begin{frame}{Acknowledgements and funding}
 

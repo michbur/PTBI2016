@@ -89,7 +89,7 @@ leg <- g_legend(p1)
 Secretory signal peptides:
         \begin{itemize}[<+->]
           \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
-            \item direct a protein to the endomembrane system and next to extra- or intracellular localizations,
+            \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
             \item are universal enough to direct properly proteins in different secretory systems; artifically introduced bacterial signal peptides can guide proteins in mammals~\citep{nagano_2014} and plants~\citep{moeller_2009},
             \item tag hormons, immune system proteins, structural proteins, and metabolic enzymes.
         \end{itemize}
@@ -147,37 +147,9 @@ The absence of a metabolic counterpart in human host make the apicoplast protein
 
 \end{frame}
 
-\begin{frame}
+\begin{frame}{PCA of amino acid frequency}
 Heavy adenine-thymine bias of malarial genomes alters amino acid composition of malarial signal peptides making them hard to predict using software trained on other eukaryotes.
 
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=8>>=
-mfreq <- filter(freq_nondeg, type == "signal") %>% 
-  melt(variable.name = "residue", value.name = "freq") %>% 
-  mutate(taxon = factor(taxon, labels = c("other", "Plasmodium")))
-
-plas_freq <- group_by(mfreq, taxon, residue) %>% 
-  summarise(med = median(freq)) %>% 
-  dcast(residue ~ taxon) %>% 
-  mutate(plas = ifelse(Plasmodium - other > 0, "plas", ifelse(Plasmodium - other == 0, "eq", "other"))) %>% 
-  select(residue, plas) %>% 
-  mutate(plas = factor(plas, labels = c("Rare amino acids", "Typical for other\nsignal peptides", 
-                                        "Typical for Plasmodium sp.\nsignal peptides")))
-
-
-ggplot(inner_join(mfreq, plas_freq), aes(x = residue, y = freq, color = taxon)) +
-  geom_boxplot(position = position_dodge(width = 0.9), notch = TRUE) +
-  facet_wrap(~ plas, ncol = 3, scales = "free_x") +
-  scale_x_discrete("Amino acid") +
-  scale_y_continuous("Normalized frequency") +
-  scale_color_manual("Taxon", values = c("dodgerblue1", "firebrick1"), 
-                     labels = c("Other eukaryotes", "Plasmodium sp.")) +
-  my_theme
-@
-\small If notches are overlapping, two groups can be considered equal.
-
-\end{frame}
-
-\begin{frame}{PCA of amino acid frequency}
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 print(p1)
 @ 
@@ -434,5 +406,32 @@ This research was partially funded by the KNOW Consortium and National Science C
   \bibliography{signalhsmm_poster}
 \end{frame}
 
+\begin{frame}
 
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=8>>=
+mfreq <- filter(freq_nondeg, type == "signal") %>% 
+  melt(variable.name = "residue", value.name = "freq") %>% 
+  mutate(taxon = factor(taxon, labels = c("other", "Plasmodium")))
+
+plas_freq <- group_by(mfreq, taxon, residue) %>% 
+  summarise(med = median(freq)) %>% 
+  dcast(residue ~ taxon) %>% 
+  mutate(plas = ifelse(Plasmodium - other > 0, "plas", ifelse(Plasmodium - other == 0, "eq", "other"))) %>% 
+  select(residue, plas) %>% 
+  mutate(plas = factor(plas, labels = c("Rare amino acids", "Typical for other\nsignal peptides", 
+                                        "Typical for Plasmodium sp.\nsignal peptides")))
+
+
+ggplot(inner_join(mfreq, plas_freq), aes(x = residue, y = freq, color = taxon)) +
+  geom_boxplot(position = position_dodge(width = 0.9), notch = TRUE) +
+  facet_wrap(~ plas, ncol = 3, scales = "free_x") +
+  scale_x_discrete("Amino acid") +
+  scale_y_continuous("Normalized frequency") +
+  scale_color_manual("Taxon", values = c("dodgerblue1", "firebrick1"), 
+                     labels = c("Other eukaryotes", "Plasmodium sp.")) +
+  my_theme
+@
+\small If notches are overlapping, two groups can be considered equal.
+
+\end{frame}
 \end{document}

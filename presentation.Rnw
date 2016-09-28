@@ -184,7 +184,7 @@ print(p1)
 \end{frame}
 
 \begin{frame}
-Since amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes, predictors of signal peptides do not predict malarial signal peptides accurately.
+Since amino acid composition of signal peptides differ between Plasmodium sp. and other eukaryotes, predictors of signal peptides do not detect malarial signal peptides accurately.
 
 There are no enough malarial signal peptides to train a specialized predictor.
   \end{frame}
@@ -245,7 +245,7 @@ Alphabets were evaluated in a cross-validation experiment using hidden semi-Mark
 
 \section{Results}
 
-\begin{frame}
+\begin{frame}{Cross-validation}
 
 <<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
 cv_dat <- read.csv("./dat/cv_res.csv") %>% 

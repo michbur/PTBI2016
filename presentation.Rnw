@@ -86,7 +86,7 @@ leg <- g_legend(p1)
 
 @
 
-Secretory signal peptides:
+Signal peptides:
         \begin{itemize}[<+->]
           \item are short (20-30 residues) N-terminal amino acid sequences forming $\alpha$-helices,
             \item direct proteins to the endomembrane system and next to extra- or intracellular localizations,
@@ -150,7 +150,7 @@ The absence of a metabolic counterpart in human host make the apicoplast protein
 \begin{frame}{PCA of amino acid frequency}
 Heavy adenine-thymine bias of malarial genomes alters amino acid composition of malarial signal peptides making them hard to predict using software trained on other eukaryotes.
 
-<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=9>>=
+<<echo = FALSE,message=FALSE,results='asis',fig.width=14, fig.height=8>>=
 print(p1)
 @ 
 \end{frame}
